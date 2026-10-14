@@ -124,16 +124,38 @@ namespace MovieCatalogExam
 
             var response = this.client.Execute(request);
 
-            var createResponse = JsonSerializer.Deserialize<ApiResponseDTO>(response.Content);
+            Assert.That(
+                response.StatusCode,
+                Is.EqualTo(HttpStatusCode.OK),
+                $"Expected 200 OK. Response: {response.Content}");
+
+            Assert.That(
+                response.Content,
+                Is.Not.Null.And.Not.Empty,
+                "Response body should not be empty.");
+
+            var createResponse =
+                JsonSerializer.Deserialize<ApiResponseDTO>(response.Content!);
+
+            Assert.That(createResponse, Is.Not.Null);
+            Assert.That(createResponse!.Movie, Is.Not.Null);
+            Assert.That(createResponse.Movie.Id, Is.Not.Null.And.Not.Empty);
+
             returnedmovieId = createResponse.Movie.Id;
 
+            Assert.That(
+                createResponse.Msg,
+                Is.EqualTo("Movie created successfully!"));
+            // var createResponse = JsonSerializer.Deserialize<ApiResponseDTO>(response.Content);
+            // returnedmovieId = createResponse.Movie.Id;
 
-            Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "Expected status code 200 OK.");
-            Assert.That(createResponse, Is.Not.Null, "Response body was not deserialized.");
-            Assert.That(createResponse.Movie, Is.Not.Null, "Expected a Movie object in the response.");
-            Assert.That(createResponse.Movie.Id, Is.Not.Empty);
-            Assert.That(createResponse.Movie.Id, Is.Not.Null);
-            Assert.That(createResponse.Msg, Is.EqualTo("Movie created successfully!"));
+
+            // Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK), "Expected status code 200 OK.");
+            // Assert.That(createResponse, Is.Not.Null, "Response body was not deserialized.");
+            // Assert.That(createResponse.Movie, Is.Not.Null, "Expected a Movie object in the response.");
+            // Assert.That(createResponse.Movie.Id, Is.Not.Empty);
+            // Assert.That(createResponse.Movie.Id, Is.Not.Null);
+            // Assert.That(createResponse.Msg, Is.EqualTo("Movie created successfully!"));
         }
 
         [Order(2)]
