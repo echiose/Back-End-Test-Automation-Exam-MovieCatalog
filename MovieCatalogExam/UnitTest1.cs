@@ -66,7 +66,7 @@ namespace MovieCatalogExam
 
             var content = JsonSerializer.Deserialize<JsonElement>(response.Content);
 
-            if (!content.TryGetProperty("token", out var tokenElement))
+            if (!content.TryGetProperty("accessToken", out var tokenElement))
             {
                 throw new InvalidOperationException(
                     $"Property 'token' was not found. Response: {response.Content}");
