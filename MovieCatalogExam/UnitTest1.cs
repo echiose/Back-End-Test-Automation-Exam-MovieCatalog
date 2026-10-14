@@ -16,7 +16,7 @@ namespace MovieCatalogExam
         private static string returnedmovieId;
 
         private const string BaseUrl = "http://144.91.123.158:5000";
-        private const string StaticToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJKd3RTZXJ2aWNlQWNjZXNzVG9rZW4iLCJqdGkiOiI5OTZhZTQyOS03YjZjLTQ5ZDEtYjYwYi1jYzk2MTc4MmNiYTYiLCJpYXQiOiIwNC8xOC8yMDI2IDA2OjM2OjUwIiwiVXNlcklkIjoiZDZkNDc5OTUtYjg2Ny00ZDc3LTYyNmEtMDhkZTc2OTcxYWI5IiwiRW1haWwiOiJleGFtcWEyNkBzb2Z0dW5pLmNvbSIsIlVzZXJOYW1lIjoiRXhhbVFhIiwiZXhwIjoxNzc2NTE1ODEwLCJpc3MiOiJNb3ZpZUNhdGFsb2dfQXBwX1NvZnRVbmkiLCJhdWQiOiJNb3ZpZUNhdGFsb2dfV2ViQVBJX1NvZnRVbmkifQ.OnsLAwm--n-_kWO2RZuMG8UI0_MqzTwFA-_-wXqc-Xk";
+        
 
         private const string LoginEmail = "examqa26@softuni.com";
         private const string LoginPassword = "examqa2026";
@@ -24,16 +24,8 @@ namespace MovieCatalogExam
         [OneTimeSetUp]
         public void Setup()
         {
-            string jwtToken;
 
-            if (!string.IsNullOrWhiteSpace(StaticToken))
-            {
-                jwtToken = StaticToken;
-            }
-            else
-            {
-                jwtToken = GetJwtToken(LoginEmail, LoginPassword);
-            }
+            var jwtToken = GetJwtToken(LoginEmail, LoginPassword);
 
             var options = new RestClientOptions(BaseUrl)
             {
