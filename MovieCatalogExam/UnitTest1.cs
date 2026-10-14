@@ -16,7 +16,7 @@ namespace MovieCatalogExam
         private static string returnedmovieId;
 
         private const string BaseUrl = "http://144.91.123.158:5000";
-        
+
 
         private const string LoginEmail = "examqa26@softuni.com";
         private const string LoginPassword = "examqa2026";
@@ -25,7 +25,7 @@ namespace MovieCatalogExam
         public void Setup()
         {
 
-            var jwtToken = GetJwtToken(LoginEmail, LoginPassword);
+            string jwtToken = GetJwtToken(LoginEmail, LoginPassword);
 
             var options = new RestClientOptions(BaseUrl)
             {
@@ -37,27 +37,72 @@ namespace MovieCatalogExam
 
         private string GetJwtToken(string email, string password)
         {
-            var tempClient = new RestClient(BaseUrl);
+            using var tempClient = new RestClient(BaseUrl);
+
             var request = new RestRequest("/api/User/Authentication", Method.Post);
-            request.AddJsonBody(new { email, password });
+            request.AddJsonBody(new
+            {
+                email,
+                password
+            });
 
             var response = tempClient.Execute(request);
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var content = JsonSerializer.Deserialize<JsonElement>(response.Content);
-                var token = content.GetProperty("token").GetString();
+            Console.WriteLine($"Authentication status: {response.StatusCode}");
+            Console.WriteLine($"Authentication response: {response.Content}");
 
-                if (string.IsNullOrWhiteSpace(token))
-                {
-                    throw new InvalidOperationException("Token not found in the response.");
-                }
-                return token;
-            }
-            else
+            if (response.StatusCode != HttpStatusCode.OK)
             {
-                throw new InvalidOperationException($"Failed to authenticate. Status code: {response.StatusCode}, Response: {response.Content}");
+                throw new InvalidOperationException(
+                    $"Failed to authenticate. Status code: {response.StatusCode}, " +
+                    $"Response: {response.Content}");
             }
+
+            if (string.IsNullOrWhiteSpace(response.Content))
+            {
+                throw new InvalidOperationException(
+                    "Authentication returned an empty response.");
+            }
+
+            var content = JsonSerializer.Deserialize<JsonElement>(response.Content);
+
+            if (!content.TryGetProperty("token", out var tokenElement))
+            {
+                throw new InvalidOperationException(
+                    $"Property 'token' was not found. Response: {response.Content}");
+            }
+
+            var token = tokenElement.GetString();
+
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                throw new InvalidOperationException(
+                    "Authentication returned an empty token.");
+            }
+
+            return token;
+
+            // var tempClient = new RestClient(BaseUrl);
+            // var request = new RestRequest("/api/User/Authentication", Method.Post);
+            // request.AddJsonBody(new { email, password });
+
+            // var response = tempClient.Execute(request);
+
+            // if (response.StatusCode == HttpStatusCode.OK)
+            // {
+            //     var content = JsonSerializer.Deserialize<JsonElement>(response.Content);
+            //     var token = content.GetProperty("token").GetString();
+
+            //     if (string.IsNullOrWhiteSpace(token))
+            //     {
+            //         throw new InvalidOperationException("Token not found in the response.");
+            //     }
+            //     return token;
+            // }
+            // else
+            // {
+            //     throw new InvalidOperationException($"Failed to authenticate. Status code: {response.StatusCode}, Response: {response.Content}");
+            // }
         }
 
         [Order(1)]
@@ -93,7 +138,6 @@ namespace MovieCatalogExam
 
         [Order(2)]
         [Test]
-
         public void EditExistingMovie_ShouldReturnSuccess()
         {
             var editRequestData = new MovieDTO
@@ -137,7 +181,6 @@ namespace MovieCatalogExam
 
         [Order(4)]
         [Test]
-
         public void DeleteCreatedMovie_ShouldReturnSuccess()
         {
             var request = new RestRequest("/api/Movie/Delete", Method.Delete);
@@ -174,7 +217,6 @@ namespace MovieCatalogExam
 
         [Order(6)]
         [Test]
-
         public void EditNonExistingMovie_ShouldReturnNotFound()
         {
             string nonExistingMovieId = "999999999";
@@ -198,7 +240,6 @@ namespace MovieCatalogExam
 
         [Order(7)]
         [Test]
-
         public void DeleteNonExistingMovie_ShouldReturnNotFound()
         {
             string nonExistingMovieId = "99999";
@@ -210,7 +251,6 @@ namespace MovieCatalogExam
 
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest), "Expected status code 400 Bad Request.");
             Assert.That(responseContent.Msg, Is.EqualTo("Unable to delete the movie! Check the movieId parameter or user verification!"));
-
         }
 
         [OneTimeTearDown]
